@@ -4,21 +4,13 @@
       {
         "type": "node",
         "request": "launch",
-        "name": "启动程序",
+        "name": "调试异步迭代器",
         "skipFiles": ["<node_internals>/**"],
-        "program": "${workspaceFolder}/src/index.ts",
+        "program": "${workspaceFolder}/dist/async-iterator-practice.js",
         "preLaunchTask": "tsc: build - tsconfig.json",
-        "outFiles": ["${workspaceFolder}/dist/**/*.js"]
+        "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+        "sourceMaps": true
       },
-      {
-        "type": "node",
-        "request": "launch",
-        "name": "使用 ts-node 运行",
-        "runtimeExecutable": "node",
-        "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"],
-        "program": "${workspaceFolder}/src/index.ts",
-        "cwd": "${workspaceRoot}",
-        "internalConsoleOptions": "openOnSessionStart"
-      }
+      
     ]
   }

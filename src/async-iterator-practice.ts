@@ -214,10 +214,63 @@ async function asyncIteratorExercises(): Promise<void> {
   }
 }
 
-// 如果直接运行此文件，则执行示例
-// 修改为 ESM 兼容的方式检测主模块
+// 添加一个专门用于调试的函数
+async function debugAsyncIterators() {
+  console.log("开始调试异步迭代器...");
+  
+  // 在这里可以设置断点
+  const basicIterator = createBasicAsyncIterator();
+  console.log("基本异步迭代器:");
+  for await (const value of basicIterator) {
+    // 在这里设置断点
+    console.log(`值: ${value}`);
+  }
+  
+  // 调试延迟异步迭代器
+  console.log("\n延迟异步迭代器:");
+  const delayedIterator = createDelayedAsyncIterator();
+  // 只获取前两个值以加快调试速度
+  let count = 0;
+  for await (const value of delayedIterator) {
+    // 在这里设置断点
+    console.log(`${new Date().toISOString()} - 收到值: ${value}`);
+    if (++count >= 2) break;
+  }
+  
+  // 调试过滤器
+  console.log("\n过滤异步迭代器:");
+  const filteredIterator = filterAsyncIterator(
+    createBasicAsyncIterator(),
+    value => value % 2 === 0
+  );
+  for await (const value of filteredIterator) {
+    // 在这里设置断点
+    console.log(`过滤后的值: ${value}`);
+  }
+  
+  // 调试可取消的迭代器
+  console.log("\n可取消的异步迭代器:");
+  const { iterator, cancel } = createCancellableAsyncIterator();
+  setTimeout(() => {
+    console.log("取消迭代器");
+    cancel();
+  }, 2500);
+  
+  try {
+    for await (const value of iterator) {
+      // 在这里设置断点
+      console.log(`收到值: ${value}`);
+    }
+  } catch (error) {
+    console.error("迭代器错误:", error);
+  }
+  
+  console.log("调试完成");
+}
+
+// 修改为直接调用调试函数
 if (typeof import.meta.url === 'string' && import.meta.url.startsWith('file:')) {
-  runExamples().catch(console.error);
+  debugAsyncIterators().catch(console.error);
 }
 
 // 导出所有函数以便在其他文件中使用
@@ -228,5 +281,6 @@ export {
   filterAsyncIterator,
   mapAsyncIterator,
   createCancellableAsyncIterator,
-  runExamples
+  runExamples,
+  debugAsyncIterators // 导出调试函数
 }; 
