@@ -4,22 +4,13 @@
       {
         "type": "node",
         "request": "launch",
-        "name": "调试异步迭代器",
+        "name": "debug",
         "skipFiles": ["<node_internals>/**"],
-        "program": "${workspaceFolder}/dist/async-iterator-practice.js",
+        "program": "${workspaceFolder}/dist/index.js",
         "preLaunchTask": "tsc: build - tsconfig.json",
         "outFiles": ["${workspaceFolder}/dist/**/*.js"],
-        "sourceMaps": true
-      },
-      {
-        "type": "node",
-        "request": "launch",
-        "name": "debug-自定义文件",
-        "skipFiles": ["<node_internals>/**"],
-        "program": "${workspaceFolder}/dist/004_promise_practice.js",
-        "preLaunchTask": "tsc: build - tsconfig.json",
-        "outFiles": ["${workspaceFolder}/dist/**/*.js"],
-        "sourceMaps": true
+        "sourceMaps": true,
+        "runtimeArgs": ["--no-warnings", "--experimental-specifier-resolution=node"]
       },
       
     ]

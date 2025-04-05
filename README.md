@@ -46,6 +46,15 @@ npm run dev
 npm run dev:esm
 ```
 
+### 编译运行单个文件
+
+```bash
+tsx src/path
+```
+
+### debug 断点调试
+在 index.ts 中 import 对应文件 , 可通过 vscode 断点调试
+
 ### 构建
 
 ```bash

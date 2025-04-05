@@ -5,11 +5,6 @@
  * 这个接口定义了与 Promise 兼容的对象所需的最小结构，即一个 then 方法。
  */
 
-console.log('--- PromiseLike<T> 接口演示 ---');
-
-// 这是一个辅助的延迟函数
-const delay = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
-
 // --- 1. 自定义一个符合 PromiseLike 的类 ---
 // 这个类不是真正的 Promise，但它有 then 方法，所以是 "PromiseLike"
 
@@ -166,108 +161,129 @@ class SimplePromiseLike<T> implements PromiseLike<T> {
   }
 }
 
-// --- 2. 使用自定义的 SimplePromiseLike ---
+export class PromiseLikePractice {
+  // 这是一个辅助的延迟函数
+  private static readonly delay = (ms: number): Promise<void> =>
+    new Promise((resolve) => setTimeout(resolve, ms));
 
-async function testSuccess() {
-  console.log('\n--- 创建并使用 SimplePromiseLike 实例 (模拟成功) ---');
-  const myPromiseLikeSuccess = new SimplePromiseLike<string>((resolve, reject) => {
-    console.log('  (Executor) 模拟异步操作 (成功)...');
-    setTimeout(() => {
-      resolve('操作成功完成！');
-    }, 1000);
-  });
+  // --- 2. 使用自定义的 SimplePromiseLike ---
 
-  await delay(2000);
-
-  console.log('调用 myPromiseLikeSuccess.then()...');
-  myPromiseLikeSuccess
-    .then(
-      (value) => {
-        // onfulfilled
-        console.log(`*** then 回调 (成功): 收到值 "${value}"`);
-        return `处理后的值: ${value} NEW`; // 返回一个新值
-      },
-      (reason) => {
-        // onrejected (这个不会被调用)
-        console.error(`*** then 回调 (失败): 收到原因 "${reason}"`);
-      },
-    )
-    .then(
-      // 链式调用，处理上一个 then 返回的值
-      (processedValue) => {
-        console.log(`*** 链式 then 回调: 收到处理后的值 "${processedValue}"`);
-      },
-    );
-}
-
-// 使用 await (await 能够处理任何 PromiseLike 对象)
-async function testWithAwaitSuccess() {
-  console.log('\n--- 使用 await 等待 SimplePromiseLike (成功) ---');
-  try {
-    // 注意：这里创建了一个新的实例，因为 Promise 状态是不可逆的
-    const myPromiseLikeForAwait = new SimplePromiseLike<number>((resolve) => {
-      console.log('  (Executor for await) 模拟异步获取数字...');
-      setTimeout(() => resolve(42), 500);
+  static async testSuccess() {
+    console.log('\n--- 创建并使用 SimplePromiseLike 实例 (模拟成功) ---');
+    const myPromiseLikeSuccess = new SimplePromiseLike<string>((resolve, reject) => {
+      console.log('  (Executor) 模拟异步操作 (成功)...');
+      setTimeout(() => {
+        resolve('操作成功完成！');
+      }, 1000);
     });
-    console.log('  await 开始...');
-    const result = await myPromiseLikeForAwait; // await 会自动调用 then
-    console.log(`  await 结束，结果: ${result}`); // result 的类型是 number (T)
-  } catch (error) {
-    console.error('  await 捕获到错误:', error);
+
+    await this.delay(2000);
+
+    console.log('调用 myPromiseLikeSuccess.then()...');
+    myPromiseLikeSuccess
+      .then(
+        (value) => {
+          // onfulfilled
+          console.log(`*** then 回调 (成功): 收到值 "${value}"`);
+          return `处理后的值: ${value} NEW`; // 返回一个新值
+        },
+        (reason) => {
+          // onrejected (这个不会被调用)
+          console.error(`*** then 回调 (失败): 收到原因 "${reason}"`);
+        },
+      )
+      .then(
+        // 链式调用，处理上一个 then 返回的值
+        (processedValue) => {
+          console.log(`*** 链式 then 回调: 收到处理后的值 "${processedValue}"`);
+        },
+      );
   }
-}
+  // 使用 await (await 能够处理任何 PromiseLike 对象)
+  static async testWithAwaitSuccess() {
+    console.log('\n--- 使用 await 等待 SimplePromiseLike (成功) ---');
+    try {
+      // 注意：这里创建了一个新的实例，因为 Promise 状态是不可逆的
+      const myPromiseLikeForAwait = new SimplePromiseLike<number>((resolve) => {
+        console.log('  (Executor for await) 模拟异步获取数字...');
+        setTimeout(() => resolve(42), 500);
+      });
+      console.log('  await 开始...');
+      const result = await myPromiseLikeForAwait; // await 会自动调用 then
+      console.log(`  await 结束，结果: ${result}`); // result 的类型是 number (T)
+    } catch (error) {
+      console.error('  await 捕获到错误:', error);
+    }
+  }
 
-// --- 3. 模拟失败情况 ---
-async function testWithAwaitFailure() {
-  console.log('\n--- 使用 await 等待 SimplePromiseLike (失败) ---');
-  const myPromiseLikeFailure = new SimplePromiseLike<string>((resolve, reject) => {
-    console.log('  (Executor for failure) 模拟异步操作 (失败)...');
-    setTimeout(() => {
-      reject('数据库连接超时');
-    }, 800);
-  });
+  // --- 3. 模拟失败情况 ---
+  static async testWithAwaitFailure() {
+    console.log('\n--- 使用 await 等待 SimplePromiseLike (失败) ---');
+    const myPromiseLikeFailure = new SimplePromiseLike<string>((resolve, reject) => {
+      console.log('  (Executor for failure) 模拟异步操作 (失败)...');
+      setTimeout(() => {
+        reject('数据库连接超时');
+      }, 800);
+    });
 
-  // 使用 then 处理失败
-  myPromiseLikeFailure.then(
-    (value) => console.log(`(失败场景 then) 成功回调不应执行: ${value}`),
-    (reason) => console.log(`*** (失败场景 then) 失败回调执行: ${reason}`),
-  );
-
-  // 使用 await 和 try...catch 处理失败
-  try {
-    console.log('  await (失败场景) 开始...');
-    // 需要创建新实例或确保 Promise 状态正确
-    const anotherFailure = new SimplePromiseLike<void>((res, rej) =>
-      setTimeout(() => rej('另一个错误'), 100),
+    // 使用 then 处理失败
+    myPromiseLikeFailure.then(
+      (value) => console.log(`(失败场景 then) 成功回调不应执行: ${value}`),
+      (reason) => console.log(`*** (失败场景 then) 失败回调执行: ${reason}`),
     );
-    await anotherFailure;
-    console.log('  await (失败场景) 成功了？(不应到达这里)');
-  } catch (error) {
-    console.error(`*** await (失败场景) 捕获到错误: ${error}`);
+
+    // 使用 await 和 try...catch 处理失败
+    try {
+      console.log('  await (失败场景) 开始...');
+      // 需要创建新实例或确保 Promise 状态正确
+      const anotherFailure = new SimplePromiseLike<void>((res, rej) =>
+        setTimeout(() => rej('另一个错误'), 100),
+      );
+      await anotherFailure;
+      console.log('  await (失败场景) 成功了？(不应到达这里)');
+    } catch (error) {
+      console.error(`*** await (失败场景) 捕获到错误: ${error}`);
+    }
+  }
+
+  // --- 4. 内建 Promise 也是 PromiseLike ---
+
+  static async testWithPromise() {
+    console.log('\n--- 内建 Promise 也符合 PromiseLike ---');
+    const nativePromise: Promise<boolean> = Promise.resolve(true);
+    const promiseLikeVar: PromiseLike<boolean> = nativePromise; // 完全兼容
+
+    console.log('可以将原生 Promise 赋值给 PromiseLike 类型的变量。');
+    promiseLikeVar.then((val) =>
+      console.log(`通过 PromiseLike 变量调用原生 Promise 的 then: ${val}`),
+    );
+  }
+  // 运行所有测试
+  static async  test() {
+    console.log('--- PromiseLike<T> 接口演示 ---');
+
+    await this.testSuccess();
+    // 等待第一个 PromiseLike 完成 (虽然 then 是异步的，但主流程会继续)
+    await this.delay(2000); // 等待第一个 then 链完成打印
+    await this.testWithAwaitSuccess();
+    await this.testWithAwaitFailure();
+    await this.testWithPromise();
+    await this.delay(500); // 等待最后的 PromiseLike 示例完成
+    console.log('\n--- 所有演示完成 ---');
   }
 }
 
-// --- 4. 内建 Promise 也是 PromiseLike ---
-
-async function testWithPromise() {
-  console.log('\n--- 内建 Promise 也符合 PromiseLike ---');
-  const nativePromise: Promise<boolean> = Promise.resolve(true);
-  const promiseLikeVar: PromiseLike<boolean> = nativePromise; // 完全兼容
-  
-  console.log('可以将原生 Promise 赋值给 PromiseLike 类型的变量。');
-  promiseLikeVar.then((val) => console.log(`通过 PromiseLike 变量调用原生 Promise 的 then: ${val}`));
-  
-}
-// 运行所有测试
-async function runAll() {
-  await testSuccess();
-  // 等待第一个 PromiseLike 完成 (虽然 then 是异步的，但主流程会继续)
-  await delay(2000); // 等待第一个 then 链完成打印
-  await testWithAwaitSuccess();
-  await testWithAwaitFailure();
-  await testWithPromise();
-  await delay(500); // 等待最后的 PromiseLike 示例完成
-  console.log('\n--- 所有演示完成 ---');
+export function promise_like_practice(): void {
+  PromiseLikePractice.test();
 }
 
-runAll();
+// 检查是否是直接运行此文件 (ESM方式)
+import { fileURLToPath } from 'url';
+
+// 立即执行函数
+(async () => {
+  // 比较当前文件路径和执行文件路径
+  if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    promise_like_practice();
+  }
+})();

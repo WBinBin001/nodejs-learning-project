@@ -105,18 +105,45 @@ class ManualApiStream implements AsyncIterable<ApiStreamChunk> {
 }
 
 // --- 如何使用这个类 ---
-async function consumeManualStream() {
-    const manualStream = new ManualApiStream();
+class StreamConsumer {
+    private stream: ManualApiStream;
 
-    console.log("[Consumer] Starting to consume manual stream...");
-    try {
-        for await (const chunk of manualStream) {
-            console.log(`[Consumer] Received:`, chunk);
+    constructor(stream: ManualApiStream) {
+        this.stream = stream;
+    }
+
+    public async consume(): Promise<void> {
+        console.log("[Consumer] Starting to consume manual stream...");
+        try {
+            for await (const chunk of this.stream) {
+                console.log(`[Consumer] Received:`, chunk);
+            }
+            console.log("[Consumer] Finished consuming manual stream.");
+        } catch (error) {
+            console.error("[Consumer] Error consuming manual stream:", error);
         }
-        console.log("[Consumer] Finished consuming manual stream.");
-    } catch (error) {
-        console.error("[Consumer] Error consuming manual stream:", error);
     }
 }
 
-consumeManualStream();
+// 主程序类
+class AsyncStreamDemo {
+    public static async run(): Promise<void> {
+        const manualStream = new ManualApiStream();
+        const consumer = new StreamConsumer(manualStream);
+        await consumer.consume();
+    }
+}
+
+
+// 检查是否是直接运行此文件 (ESM方式)
+import { fileURLToPath } from 'url';
+
+// 立即执行函数
+(async () => {
+  // 比较当前文件路径和执行文件路径
+  if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    // 运行应用
+    AsyncStreamDemo.run().catch(error => {
+        console.error("[Main] Error running demo:", error);
+    });  }
+})();
