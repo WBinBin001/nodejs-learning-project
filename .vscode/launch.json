@@ -16,7 +16,7 @@
         "request": "launch",
         "name": "debug-自定义文件",
         "skipFiles": ["<node_internals>/**"],
-        "program": "${workspaceFolder}/dist/003_promise_like_practice.js",
+        "program": "${workspaceFolder}/dist/004_promise_practice.js",
         "preLaunchTask": "tsc: build - tsconfig.json",
         "outFiles": ["${workspaceFolder}/dist/**/*.js"],
         "sourceMaps": true
